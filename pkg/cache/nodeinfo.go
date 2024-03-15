@@ -3,10 +3,11 @@ package cache
 import (
 	"context"
 	"fmt"
-	"github.com/AliyunContainerService/gpushare-scheduler-extender/pkg/log"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/AliyunContainerService/gpushare-scheduler-extender/pkg/log"
 
 	v1 "k8s.io/api/core/v1"
 
@@ -266,7 +267,7 @@ func (n *NodeInfo) allocateGPUID(pod *v1.Pod) (candidateDevID int, found bool) {
 				availableGPU, ok := availableGPUs[devID]
 				if ok {
 					if availableGPU >= reqGPU {
-						if candidateDevID == -1 || candidateGPUMemory > availableGPU {
+						if candidateDevID == -1 || candidateGPUMemory < availableGPU {
 							candidateDevID = devID
 							candidateGPUMemory = availableGPU
 						}
