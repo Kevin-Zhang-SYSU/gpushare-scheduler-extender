@@ -93,12 +93,12 @@ spec:
       tolerations:
       - effect: NoSchedule
         operator: Exists
-        key: node-role.kubernetes.io/master
+        key: node-role.kubernetes.io/control-plane
       - effect: NoSchedule
         operator: Exists
         key: node.cloudprovider.kubernetes.io/uninitialized
       nodeSelector:
-         node-role.kubernetes.io/master: ""
+         node-role.kubernetes.io/control-plane: ""
       serviceAccount: gpushare-schd-extender-v1
       containers:
         - name: gpushare-schd-extender-v1
@@ -125,7 +125,7 @@ spec:
   - port: 12345
     name: http
     targetPort: 12345
-    nodePort: 32767
+    nodePort: 32767 # change the nodePort to 32767
   selector:
     # select app=ingress-nginx pods
     app: gpushare
