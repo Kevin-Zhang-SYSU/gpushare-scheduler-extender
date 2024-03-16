@@ -4,7 +4,7 @@ kind: KubeSchedulerConfiguration
 clientConnection:
   kubeconfig: /etc/kubernetes/scheduler.conf
 extenders:
-- urlPrefix: "http://127.0.0.1:32766/gpushare-scheduler"
+- urlPrefix: "http://127.0.0.1:32767/gpushare-scheduler"
   filterVerb: filter
   bindVerb: bind
   enableHTTPS: false
