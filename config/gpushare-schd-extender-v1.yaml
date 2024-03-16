@@ -107,7 +107,7 @@ spec:
           - name: LOG_LEVEL
             value: debug
           - name: PORT
-            value: "12345"
+            value: "12346"
 
 # service.yaml            
 ---
@@ -122,9 +122,9 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - port: 12345
+  - port: 12346
     name: http
-    targetPort: 12345
+    targetPort: 12346
     nodePort: 32767 # change the nodePort to 32767
   selector:
     # select app=ingress-nginx pods
