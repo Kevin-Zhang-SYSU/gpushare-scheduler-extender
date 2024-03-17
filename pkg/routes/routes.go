@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/AliyunContainerService/gpushare-scheduler-extender/pkg/log"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/AliyunContainerService/gpushare-scheduler-extender/pkg/log"
 
 	"github.com/julienschmidt/httprouter"
 
@@ -21,6 +22,7 @@ const (
 	apiPrefix         = "/gpushare-scheduler"
 	bindPrefix        = apiPrefix + "/bind"
 	predicatesPrefix  = apiPrefix + "/filter"
+	prioritizePrefix  = apiPrefix + "/prioritize"
 	inspectPrefix     = apiPrefix + "/inspect/:nodename"
 	inspectListPrefix = apiPrefix + "/inspect"
 )
@@ -97,6 +99,47 @@ func PredicateRoute(predicate *scheduler.Predicate) httprouter.Handle {
 	}
 }
 
+func PrioritizeRoute(prioritize *scheduler.Prioritize) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		checkBody(w, r)
+
+		// mu.RLock()
+		// defer mu.RUnlock()
+
+		var buf bytes.Buffer
+		body := io.TeeReader(r.Body, &buf)
+
+		var extenderArgs schedulerapi.ExtenderArgs
+		var extenderPriorityList *schedulerapi.HostPriorityList
+
+		if err := json.NewDecoder(body).Decode(&extenderArgs); err != nil {
+			log.V(3).Info("warn: failed to parse request due to error %v", err)
+			panic(err)
+		} else {
+			log.V(90).Info("debug: gpusharingprioritize ExtenderArgs =%v", extenderArgs)
+			if list, err := prioritize.Handler(&extenderArgs); err != nil {
+				panic(err)
+			} else {
+				extenderPriorityList = list
+			}
+		}
+
+		if resultBody, err := json.Marshal(extenderPriorityList); err != nil {
+			// panic(err)
+			log.V(3).Info("warn: Failed due to %v", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			errMsg := fmt.Sprintf("{'error':'%s'}", err.Error())
+			w.Write([]byte(errMsg))
+		} else {
+			log.V(100).Info("prioritize: %s,  extenderPriorityList = %s ", prioritize.Name, resultBody)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write(resultBody)
+		}
+	}
+}
+
 func BindRoute(bind *scheduler.Bind) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		checkBody(w, r)
@@ -158,13 +201,17 @@ func DebugLogging(h httprouter.Handle, path string) httprouter.Handle {
 		log.V(90).Info("path: %s, request body = %s", path, r.Body)
 		startTime := time.Now()
 		h(w, r, p)
-		log.V(90).Info("path: %s, response: %v, cost_time: %v", path, w, time.Now().Sub(startTime))
+		log.V(90).Info("path: %s, response: %v, cost_time: %v", path, w, time.Since(startTime))
 	}
 }
 
 func AddPredicate(router *httprouter.Router, predicate *scheduler.Predicate) {
 	// path := predicatesPrefix + "/" + predicate.Name
 	router.POST(predicatesPrefix, DebugLogging(PredicateRoute(predicate), predicatesPrefix))
+}
+
+func AddPrioritie(router *httprouter.Router, prioritie *scheduler.Prioritize) {
+	router.POST(prioritizePrefix, DebugLogging(PrioritizeRoute(prioritie), prioritizePrefix))
 }
 
 func AddBind(router *httprouter.Router, bind *scheduler.Bind) {

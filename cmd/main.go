@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/AliyunContainerService/gpushare-scheduler-extender/pkg/log"
 	"net/http"
 	"os"
 	"runtime"
 	"strconv"
 	"time"
+
+	"github.com/AliyunContainerService/gpushare-scheduler-extender/pkg/log"
 
 	"github.com/AliyunContainerService/gpushare-scheduler-extender/pkg/gpushare"
 	"github.com/AliyunContainerService/gpushare-scheduler-extender/pkg/routes"
@@ -93,6 +94,7 @@ func main() {
 	go controller.Run(threadness, stopCh)
 
 	gpusharePredicate := scheduler.NewGPUsharePredicate(clientset, controller.GetSchedulerCache())
+	gpusharePrioritie := scheduler.NewGPUsharePrioritize(clientset, controller.GetSchedulerCache())
 	gpushareBind := scheduler.NewGPUShareBind(ctx, clientset, controller.GetSchedulerCache())
 	gpushareInspect := scheduler.NewGPUShareInspect(controller.GetSchedulerCache())
 
@@ -101,6 +103,7 @@ func main() {
 	routes.AddPProf(router)
 	routes.AddVersion(router)
 	routes.AddPredicate(router, gpusharePredicate)
+	routes.AddPrioritie(router, gpusharePrioritie)
 	routes.AddBind(router, gpushareBind)
 	routes.AddInspect(router, gpushareInspect)
 

@@ -305,7 +305,7 @@ func (n *NodeInfo) getAvailableGPUs() (availableGPUs map[int]uint) {
 		}
 	}
 	log.V(3).Info("info: available GPU list %v before removing unhealty GPUs", availableGPUs)
-	for id, _ := range unhealthyGPUs {
+	for id := range unhealthyGPUs {
 		log.V(3).Info("info: delete dev %d from availble GPU list", id)
 		delete(availableGPUs, id)
 	}
