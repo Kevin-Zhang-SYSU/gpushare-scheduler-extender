@@ -210,8 +210,8 @@ func AddPredicate(router *httprouter.Router, predicate *scheduler.Predicate) {
 	router.POST(predicatesPrefix, DebugLogging(PredicateRoute(predicate), predicatesPrefix))
 }
 
-func AddPrioritie(router *httprouter.Router, prioritie *scheduler.Prioritize) {
-	router.POST(prioritizePrefix, DebugLogging(PrioritizeRoute(prioritie), prioritizePrefix))
+func AddPrioritize(router *httprouter.Router, prioritize *scheduler.Prioritize) {
+	router.POST(prioritizePrefix, DebugLogging(PrioritizeRoute(prioritize), prioritizePrefix))
 }
 
 func AddBind(router *httprouter.Router, bind *scheduler.Bind) {

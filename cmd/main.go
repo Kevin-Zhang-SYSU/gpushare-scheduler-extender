@@ -103,7 +103,7 @@ func main() {
 	routes.AddPProf(router)
 	routes.AddVersion(router)
 	routes.AddPredicate(router, gpusharePredicate)
-	routes.AddPrioritie(router, gpusharePrioritie)
+	routes.AddPrioritize(router, gpusharePrioritie)
 	routes.AddBind(router, gpushareBind)
 	routes.AddInspect(router, gpushareInspect)
 
