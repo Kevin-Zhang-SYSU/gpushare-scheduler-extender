@@ -31,13 +31,14 @@ func (p Prioritize) Handler(args *schedulerapi.ExtenderArgs) (*schedulerapi.Host
 		log.V(3).Info("error: node names slice is empty")
 		return nil, fmt.Errorf("node names slice is empty")
 	}
-	priorityList := make(schedulerapi.HostPriorityList, len(nodeNames))
+	priorityList := make(schedulerapi.HostPriorityList, 0, len(nodeNames))
 	log.V(3).Info("info: The node names are %v", nodeNames)
-	for i, nodename := range nodeNames {
-		priorityList[i] = schedulerapi.HostPriority{
+	for _, nodename := range nodeNames {
+		hostpriority := schedulerapi.HostPriority{
 			Host:  nodename,
 			Score: 0,
 		}
+		priorityList = append(priorityList, hostpriority)
 		log.V(3).Info("info: The node %s has been added to the priority list", nodename)
 	}
 	if len(nodeNames) == 1 {
