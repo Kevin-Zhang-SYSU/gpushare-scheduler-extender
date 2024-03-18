@@ -57,21 +57,21 @@ func (p Prioritize) Handler(args *schedulerapi.ExtenderArgs) (*schedulerapi.Host
 		// 计算每一个Node上剩余的显存大小，作为分数返回
 		// 1. 获取Node上的所有GPU设备
 		devices := nodeInfo.GetDevs()
+		score := int64(0)
 		// 2. 计算每一个GPU设备上的剩余显存大小
 		for _, dev := range devices {
 			// 3. 计算每一个GPU设备上的剩余显存大小
 			// 4. 将每一个GPU设备上的剩余显存大小作为分数返回
 			totalMemory := int64(dev.GetTotalGPUMemory())
 			usedMemory := int64(dev.GetUsedGPUMemory())
-			score := totalMemory - usedMemory
-			priorityList = append(priorityList, schedulerapi.HostPriority{
-				Host:  nodeName,
-				Score: score,
-			})
-			log.V(3).Info("info: The node %s has score %d", nodeName, score)
+			score += (totalMemory - usedMemory)
 		}
-		log.V(3).Info("info: The node %s has been added to the priority list", nodeName)
-		log.V(100).Info("info: prioritize result for %s, is %+v", nodeNames, priorityList)
+		priorityList = append(priorityList, schedulerapi.HostPriority{
+			Host:  nodeName,
+			Score: score,
+		})
+		log.V(3).Info("info: The node %s has score %d", nodeName, score)
 	}
+	log.V(100).Info("info: prioritize result for %s, is %+v", nodeNames, priorityList)
 	return &priorityList, nil
 }
