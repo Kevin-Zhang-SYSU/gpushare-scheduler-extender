@@ -17,17 +17,19 @@ func (p Prioritize) Handler(args *schedulerapi.ExtenderArgs) (*schedulerapi.Host
 	var nodeNames []string
 	if args.NodeNames != nil {
 		nodeNames = *args.NodeNames
-		log.V(3).Info("extender args NodeNames is not nil, result %+v", nodeNames)
+		log.V(3).Info("info: extender args NodeNames is not nil, result %+v", nodeNames)
 	} else if args.Nodes != nil {
 		for _, n := range args.Nodes.Items {
 			nodeNames = append(nodeNames, n.Name)
 		}
-		log.V(3).Info("extender args Nodes is not nil, names is %+v", nodeNames)
+		log.V(3).Info("info: extender args Nodes is not nil, names is %+v", nodeNames)
 	} else {
 		priorityList := make(schedulerapi.HostPriorityList, 0)
+		log.V(3).Info("error: cannot get node names")
 		return &priorityList, fmt.Errorf("cannot get node names")
 	}
 	priorityList := make(schedulerapi.HostPriorityList, len(nodeNames))
+	log.V(3).Info("info: The node names are %v", nodeNames)
 	for i, nodename := range nodeNames {
 		priorityList[i] = schedulerapi.HostPriority{
 			Host:  nodename,
@@ -36,8 +38,10 @@ func (p Prioritize) Handler(args *schedulerapi.ExtenderArgs) (*schedulerapi.Host
 		log.V(3).Info("info: The node %s has been added to the priority list", nodename)
 	}
 	if len(nodeNames) == 1 {
+		log.V(3).Info("info: only one node, return directly")
 		return &priorityList, nil
 	}
+	log.V(3).Info("info: calculate the priority for each node")
 	// 计算每一个Node上剩余的显存大小，作为分数返回
 	for _, nodeName := range nodeNames {
 		nodeInfo, err := p.cache.GetNodeInfo(nodeName)
@@ -67,7 +71,7 @@ func (p Prioritize) Handler(args *schedulerapi.ExtenderArgs) (*schedulerapi.Host
 			log.V(3).Info("info: The node %s has score %d", nodeName, score)
 		}
 		log.V(3).Info("info: The node %s has been added to the priority list", nodeName)
-		log.V(100).Info("prioritize result for %s, is %+v", nodeNames, priorityList)
+		log.V(100).Info("info: prioritize result for %s, is %+v", nodeNames, priorityList)
 	}
 	return &priorityList, nil
 }
