@@ -103,6 +103,7 @@ spec:
       containers:
         - name: gpushare-schd-extender-v1
           image: registry.cn-shenzhen.aliyuncs.com/k8s-scheduler-extender/k8s-scheduler-extender:v1
+          imagePullPolicy: Always
           env:
           - name: LOG_LEVEL
             value: debug

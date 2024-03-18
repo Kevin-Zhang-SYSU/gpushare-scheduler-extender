@@ -70,10 +70,13 @@ func (p Prioritize) Handler(args *schedulerapi.ExtenderArgs) (*schedulerapi.Host
 			usedMemory := int64(dev.GetUsedGPUMemory())
 			score += (totalMemory - usedMemory)
 		}
-		priorityList = append(priorityList, schedulerapi.HostPriority{
-			Host:  nodeName,
-			Score: score,
-		})
+		// 找到priorityList中对应的node，更新score
+		for i, hostPriority := range priorityList {
+			if hostPriority.Host == nodeName {
+				priorityList[i].Score = score
+				break
+			}
+		}
 		log.V(3).Info("info: The node %s has score %d", nodeName, score)
 	}
 	log.V(100).Info("info: prioritize result for %s, is %+v", nodeNames, priorityList)
