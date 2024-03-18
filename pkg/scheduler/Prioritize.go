@@ -28,6 +28,10 @@ func (p Prioritize) Handler(args *schedulerapi.ExtenderArgs) (*schedulerapi.Host
 		log.V(3).Info("error: cannot get node names")
 		return &priorityList, fmt.Errorf("cannot get node names")
 	}
+	if len(nodeNames) == 0 {
+		log.V(3).Info("error: node names slice is empty")
+		return nil, fmt.Errorf("node names slice is empty")
+	}
 	priorityList := make(schedulerapi.HostPriorityList, len(nodeNames))
 	log.V(3).Info("info: The node names are %v", nodeNames)
 	for i, nodename := range nodeNames {
