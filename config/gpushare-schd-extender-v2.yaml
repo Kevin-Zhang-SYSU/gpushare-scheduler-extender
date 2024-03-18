@@ -125,7 +125,7 @@ spec:
   - port: 12347
     name: http
     targetPort: 12347
-    nodePort: 32768 # change the nodePort to 32768
+    nodePort: 32765 # change the nodePort to 32765  30000-32767
   selector:
     # select app=ingress-nginx pods
     app: gpushare

@@ -33,6 +33,9 @@ func (p Prioritize) Handler(args *schedulerapi.ExtenderArgs) (*schedulerapi.Host
 			Score: 0,
 		}
 	}
+	if len(nodeNames) == 1 {
+		return &priorityList, nil
+	}
 	// 计算每一个Node上剩余的显存大小，作为分数返回
 	for _, nodeName := range nodeNames {
 		nodeInfo, err := p.cache.GetNodeInfo(nodeName)
