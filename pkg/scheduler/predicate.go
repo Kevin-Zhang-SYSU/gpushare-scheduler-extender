@@ -2,10 +2,11 @@ package scheduler
 
 import (
 	"fmt"
+
 	"github.com/AliyunContainerService/gpushare-scheduler-extender/pkg/cache"
 	"github.com/AliyunContainerService/gpushare-scheduler-extender/pkg/log"
 	"github.com/AliyunContainerService/gpushare-scheduler-extender/pkg/utils"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	schedulerapi "k8s.io/kube-scheduler/extender/v1"
 )
 

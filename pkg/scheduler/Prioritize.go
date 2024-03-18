@@ -24,9 +24,8 @@ func (p Prioritize) Handler(args *schedulerapi.ExtenderArgs) (*schedulerapi.Host
 		}
 		log.V(3).Info("info: extender args Nodes is not nil, names is %+v", nodeNames)
 	} else {
-		priorityList := make(schedulerapi.HostPriorityList, 0)
 		log.V(3).Info("error: cannot get node names")
-		return &priorityList, fmt.Errorf("cannot get node names")
+		return nil, fmt.Errorf("cannot get node names")
 	}
 	if len(nodeNames) == 0 {
 		log.V(3).Info("error: node names slice is empty")
