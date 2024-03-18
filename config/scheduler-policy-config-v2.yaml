@@ -7,6 +7,7 @@ extenders:
 - urlPrefix: "http://127.0.0.1:32765/gpushare-scheduler"
   filterVerb: filter
   prioritizeVerb: prioritize
+  weight: 10
   bindVerb: bind
   enableHTTPS: false
   nodeCacheCapable: true
