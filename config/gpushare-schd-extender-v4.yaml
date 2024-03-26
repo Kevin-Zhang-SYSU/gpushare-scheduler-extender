@@ -1,0 +1,133 @@
+# rbac.yaml
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: gpushare-schd-extender-v4
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - update
+  - patch
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - bindings
+  - pods/binding
+  verbs:
+  - create
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gpushare-schd-extender-v4
+  namespace: kube-system
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: gpushare-schd-extender-v4
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: gpushare-schd-extender-v4
+subjects:
+- kind: ServiceAccount
+  name: gpushare-schd-extender-v4
+  namespace: kube-system
+
+# deployment yaml
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: gpushare-schd-extender-v4
+  namespace: kube-system
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+        app: gpushare
+        component: gpushare-schd-extender-v4
+  template:
+    metadata:
+      labels:
+        app: gpushare
+        component: gpushare-schd-extender-v4
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      hostNetwork: true
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+        key: node-role.kubernetes.io/control-plane
+      - effect: NoSchedule
+        operator: Exists
+        key: node.cloudprovider.kubernetes.io/uninitialized
+      nodeSelector:
+         node-role.kubernetes.io/control-plane: ""
+      serviceAccount: gpushare-schd-extender-v4
+      containers:
+        - name: gpushare-schd-extender-v4
+          image: registry.cn-shenzhen.aliyuncs.com/k8s-scheduler-extender/k8s-scheduler-extender:v4
+          imagePullPolicy: Always
+          env:
+          - name: LOG_LEVEL
+            value: debug
+          - name: PORT
+            value: "12349"
+
+# service.yaml            
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpushare-schd-extender-v4
+  namespace: kube-system
+  labels:
+    app: gpushare
+    component: gpushare-schd-extender-v4
+spec:
+  type: NodePort
+  ports:
+  - port: 12349
+    name: http
+    targetPort: 12349
+    nodePort: 32763 # change the nodePort to 32765  30000-32767
+  selector:
+    # select app=ingress-nginx pods
+    app: gpushare
+    component: gpushare-schd-extender-v4   

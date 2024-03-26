@@ -259,6 +259,11 @@ func (n *NodeInfo) allocateGPUID(pod *v1.Pod) (candidateDevID int, found bool) {
 
 	reqGPU = uint(utils.GetGPUMemoryFromPodResource(pod))
 
+	policyValue, found := n.node.Labels["policy"]
+	if !found {
+		log.V(3).Info("warn: failed to get policy label for %s", n.name)
+	}
+
 	if reqGPU > uint(0) {
 		log.V(3).Info("info: reqGPU for pod %s in ns %s: %d", pod.Name, pod.Namespace, reqGPU)
 		log.V(3).Info("info: AvailableGPUs: %v in node %s", availableGPUs, n.name)
@@ -267,11 +272,17 @@ func (n *NodeInfo) allocateGPUID(pod *v1.Pod) (candidateDevID int, found bool) {
 				availableGPU, ok := availableGPUs[devID]
 				if ok {
 					if availableGPU >= reqGPU {
-						if candidateDevID == -1 || candidateGPUMemory > availableGPU {
-							candidateDevID = devID
-							candidateGPUMemory = availableGPU
+						if policyValue == "binpack" {
+							if candidateDevID == -1 || candidateGPUMemory > availableGPU {
+								candidateDevID = devID
+								candidateGPUMemory = availableGPU
+							}
+						} else if policyValue == "spread" {
+							if candidateDevID == -1 || candidateGPUMemory < availableGPU {
+								candidateDevID = devID
+								candidateGPUMemory = availableGPU
+							}
 						}
-
 						found = true
 					}
 				}

@@ -58,6 +58,12 @@ func (p Prioritize) Handler(args *schedulerapi.ExtenderArgs) (*schedulerapi.Host
 			log.V(3).Info("error: failed to get node for %s", nodeName)
 			continue
 		}
+		// 查找节点的 "policy" 标签的值
+		policyValue, found := node.Labels["policy"]
+		if !found {
+			log.V(3).Info("error: failed to get policy label for %s", nodeName)
+			continue
+		}
 		// 计算每一个Node上剩余的显存大小，作为分数返回
 		// 1. 获取Node上的所有GPU设备
 		devices := nodeInfo.GetDevs()
@@ -73,7 +79,11 @@ func (p Prioritize) Handler(args *schedulerapi.ExtenderArgs) (*schedulerapi.Host
 		// 找到priorityList中对应的node，更新score
 		for i, hostPriority := range priorityList {
 			if hostPriority.Host == nodeName {
-				priorityList[i].Score = 100 - score
+				if policyValue == "binpack" {
+					priorityList[i].Score = 100 - score
+				} else if policyValue == "spread" {
+					priorityList[i].Score = 100 + score
+				}
 				break
 			}
 		}
