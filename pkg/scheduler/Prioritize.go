@@ -73,7 +73,7 @@ func (p Prioritize) Handler(args *schedulerapi.ExtenderArgs) (*schedulerapi.Host
 		// 找到priorityList中对应的node，更新score
 		for i, hostPriority := range priorityList {
 			if hostPriority.Host == nodeName {
-				priorityList[i].Score = score
+				priorityList[i].Score = 100 - score
 				break
 			}
 		}

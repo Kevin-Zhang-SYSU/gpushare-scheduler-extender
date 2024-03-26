@@ -267,7 +267,7 @@ func (n *NodeInfo) allocateGPUID(pod *v1.Pod) (candidateDevID int, found bool) {
 				availableGPU, ok := availableGPUs[devID]
 				if ok {
 					if availableGPU >= reqGPU {
-						if candidateDevID == -1 || candidateGPUMemory < availableGPU {
+						if candidateDevID == -1 || candidateGPUMemory > availableGPU {
 							candidateDevID = devID
 							candidateGPUMemory = availableGPU
 						}

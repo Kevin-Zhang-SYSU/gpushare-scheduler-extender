@@ -1,0 +1,17 @@
+---
+apiVersion: kubescheduler.config.k8s.io/v1
+kind: KubeSchedulerConfiguration
+clientConnection:
+  kubeconfig: /etc/kubernetes/scheduler.conf
+extenders:
+- urlPrefix: "http://127.0.0.1:32764/gpushare-scheduler"
+  filterVerb: filter
+  prioritizeVerb: prioritize
+  weight: 10
+  bindVerb: bind
+  enableHTTPS: false
+  nodeCacheCapable: true
+  managedResources:
+  - name: aliyun.com/gpu-mem
+    ignoredByScheduler: false
+  ignorable: false
